@@ -1,0 +1,52 @@
+---
+#--------------------------------------------------------------------
+# Specify the pgsql major version (92, 93, 94).
+#--------------------------------------------------------------------
+pg_ver: 94
+pg_dot_ver: "{{ pg_ver | regex_replace('^(.)(.)$', '\\\\1.\\\\2') }}"
+
+# pgdg rpm
+rpm:
+  ver: '{{ pg_ver }}'
+  '92': pgdg-centos92-9.2-6.noarch.rpm
+  '93': pgdg-centos93-9.3-1.noarch.rpm
+  '94': pgdg-centos94-9.4-1.noarch.rpm
+
+#--------------------------------------------------------------------
+# Specify replication mode (stream, native).
+#     stream: PostgreSQL Streaming Replication
+#     native: pgpool-II replication
+#--------------------------------------------------------------------
+repli_mode: stream
+
+#--------------------------------------------------------------------
+# postgresql.conf:synchronous_standby_names
+# Specify '' or 'host1, host2, host3, ...'
+# synchronous_standby_names: '{{ pgsql_standby01_ip }}, {{ pgsql_standby02_ip }}'
+#--------------------------------------------------------------------
+synchronous_standby_names: 'pgsql02,pgsql03'
+
+# pgsql info.
+pghome: /usr/pgsql-{{ pg_dot_ver }}
+pgport: 5432
+pgdata: /var/lib/pgsql/{{ pg_dot_ver }}/data
+pgarc: /var/lib/pgsql/{{ pg_dot_ver }}/backups
+pgsql_log_dir: /var/log/pgsql
+
+# pgpool info.
+pgpool_pid_dir: /var/run/pgpool
+pgpool_log_dir: /var/log/pgpool
+poolport: 9999
+pcpport: 9898
+vip: 192.168.1.101
+
+#--------------------------------------------------------------------
+# server info
+# WORKAROUND
+#--------------------------------------------------------------------
+pgpool_active_ip: pgpool01
+pgpool_standby_ip: pgpool02
+pgsql_primary_ip: pgsql01
+pgsql_standby01_ip: pgsql02
+pgsql_standby02_ip: pgsql03
+nic: eth1

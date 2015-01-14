@@ -1,0 +1,3 @@
+---
+- name: Copy pgdg rpm
+  copy: src={{ rpm[rpm['ver']] }} dest=/usr/local/src

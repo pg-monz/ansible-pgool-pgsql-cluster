@@ -1,0 +1,3 @@
+---
+- name: Copy pgpool-II-3.4.0 src
+  unarchive: src=pgpool-II-3.4.0.tar.gz dest=/usr/local/src

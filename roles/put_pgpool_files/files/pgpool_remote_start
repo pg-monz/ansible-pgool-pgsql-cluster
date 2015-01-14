@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# start postmaster on the recoveried node
+
+if [ $# -ne 2 ]
+then
+    echo "pgpool_remote_start remote_host remote_datadir"
+    exit 1
+fi
+
+source /usr/local/etc/config_for_pgpool-II_script
+
+SCRIPT_LOG="$PGPOOL_LOG_DIR/remote_start.log"
+exec >>$SCRIPT_LOG 2>&1
+
+DEST_HOST=$1
+DEST_HOST_PGDATA=$2
+
+echo "----------------------------------------------------------------------"
+date
+echo "----------------------------------------------------------------------"
+echo ""
+
+COMMAND="$PG_CTL -w -D $DEST_HOST_PGDATA start > /dev/null 2>&1"
+
+echo "
+DEST_HOST         $DEST_HOST
+DEST_HOST_PGDATA  $DEST_HOST_PGDATA
+COMMAND           $COMMAND
+"
+
+echo "remote start"
+ssh $PG_SUPER_USER@$DEST_HOST -T "$COMMAND"
+
+ps auwx | grep postgres
+echo ""

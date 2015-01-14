@@ -1,0 +1,25 @@
+---
+- name: Stop pgpool
+  command: pkill pgpool
+  ignore_errors: yes
+
+- name: remove pid file
+  file: path={{ pgpool_log_dir }}/pgpool.pid state=absent
+
+- name: remove socket file
+  file: path={{ item }} state=absent
+  with_fileglob:
+    - /tmp/.s.PGSQL.9*
+
+- name: remove pgpool_status file
+  file: path=/tmp/pgpool_status state=absent
+
+- name: delete vip
+  command: ifconfig {{ nic }}:0 down
+  ignore_errors: yes
+
+- name: remove pgpool
+  file: path=/usr/local/src/pgpool-II-3.4.0 state=absent
+
+- name: Delete ALL PostgreSQL
+  yum: name=postgresql* state=absent

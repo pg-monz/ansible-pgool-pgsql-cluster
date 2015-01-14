@@ -1,0 +1,7 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: no
+  roles:
+    - install_pgsql_from_rpm
+    - install_pgpool_from_src

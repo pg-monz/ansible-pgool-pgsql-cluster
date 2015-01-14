@@ -1,0 +1,8 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: no
+  roles:
+   - spred_ssh_settings
+   - spred_pgdg_rpms
+   - spred_pgpool_src

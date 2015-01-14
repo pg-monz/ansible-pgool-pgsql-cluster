@@ -1,0 +1,35 @@
+---
+- name: Copy pgpool.conf
+  template: src=pgpool.conf dest=/usr/local/etc mode=644 owner=root group=root
+  when: "'pgpool' in group_names"
+
+- name: Copy pool_hba.conf
+  copy: src=pool_hba.conf dest=/usr/local/etc mode=644 owner=root group=root
+  when: "'pgpool' in group_names"
+
+- name: Copy pcp.conf
+  copy: src=pcp.conf dest=/usr/local/etc mode=644 owner=root group=root
+  when: "'pgpool' in group_names"
+
+- name: Copy fialover.sh
+  template: src=failover.sh dest=/usr/local/etc mode=755 owner=root group=root
+  when: "'pgpool' in group_names and repli_mode == 'stream'"
+
+- name: Copy follow_master.sh
+  template: src=follow_master.sh dest=/usr/local/etc mode=755 owner=root group=root
+  when: "'pgpool' in group_names and repli_mode == 'stream'"
+
+- name: Copy config_for_pgpool-II_script
+  template: src=config_for_pgpool-II_script dest=/usr/local/etc mode=644 owner=root group=root
+
+- name: Copy recovery_1st.sh
+  template: src=recovery_1st.sh dest={{ pgdata }} mode=755 owner=postgres group=postgres
+  when: "'pgsql_primary' in group_names"
+
+- name: Copy recovery_2nd.sh
+  template: src=recovery_2nd.sh dest={{ pgdata }} mode=755 owner=postgres group=postgres
+  when: "'pgsql_primary' in group_names and repli_mode == 'native'"
+
+- name: Copy pgpool_remote_start
+  copy: src=pgpool_remote_start dest={{ pgdata }} mode=755 owner=postgres group=postgres
+  when: "'pgsql_primary' in group_names"

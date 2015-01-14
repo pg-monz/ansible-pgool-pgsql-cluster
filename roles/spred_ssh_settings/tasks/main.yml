@@ -1,0 +1,39 @@
+---
+- name: Create ssh directory [root]
+  file: path=/root/.ssh state=directory mode=0700 owner=root group=root
+
+- name: Copy id_rsa [root]
+  copy: src=id_rsa dest=/root/.ssh mode=600 owner=root group=root
+
+- name: Copy id_rsa.pub [root]
+  copy: src=id_rsa.pub dest=/root/.ssh mode=644 owner=root group=root
+
+- name: Copy authorized_keys [root]
+  copy: src=authorized_keys dest=/root/.ssh mode=700 owner=root group=root
+
+- name: Copy config [root]
+  copy: src=config dest=/root/.ssh mode=600 owner=root group=root
+
+- name: Create postgres group
+  group: name=postgres gid=26 system=yes
+
+- name: Create postgres user
+  user:
+     name=postgres password=$6$$UAtuuTQSnz1Jsg71jOCuw/IBFrlakO86IOdjgXsdSGTFYwc41fQ5MrtdvO37C1xEkOs1w93ft1pSH2J847bq50
+     uid=26 group=postgres system=yes
+     home=/var/lib/pgsql
+
+- name: Create ssh directory [postgres]
+  file: path=/var/lib/pgsql/.ssh state=directory mode=0700 owner=postgres group=postgres
+
+- name: Copy id_rsa [postgres]
+  copy: src=id_rsa dest=/var/lib/pgsql/.ssh mode=600 owner=postgres group=postgres
+
+- name: Copy id_rsa.pub [postgres]
+  copy: src=id_rsa.pub dest=/var/lib/pgsql/.ssh mode=644 owner=postgres group=postgres
+
+- name: Copy authorized_keys [postgres]
+  copy: src=authorized_keys dest=/var/lib/pgsql/.ssh mode=600 owner=postgres group=postgres
+
+- name: Copy config [postgres]
+  copy: src=config dest=/var/lib/pgsql/.ssh mode=600 owner=postgres group=postgres

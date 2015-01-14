@@ -1,0 +1,33 @@
+---
+- hosts: pgsql_primary
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - name: Start postgres
+      command: su - postgres -c '{{ pghome }}/bin/pg_ctl -D {{ pgdata }} -w start &>/dev/null'
+
+- hosts: pgpool
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - name: Start active pgpool
+      command: su - postgres -c "pgpool -n -D &>{{ pgpool_log_dir }}/pgpool-$(date '+%Y%m%d').log &"
+      when: wd_role == 'active'
+
+    - name: Pause to wait for pgpool-active to start up
+      pause: seconds=45
+
+    - name: Start standby pgpool
+      command: su - postgres -c "pgpool -n -D &>{{ pgpool_log_dir }}/pgpool-$(date '+%Y%m%d').log &"
+      when: wd_role == 'standby'
+
+    - name: Pause to wait for pgpool-standby to start up
+      pause: seconds=45
+
+    - name: online recovery [standby01]
+      command: su - postgres -c 'pcp_recovery_node 0 localhost {{ pcpport }} postgres postgres 1'
+      when: wd_role == 'active'
+
+    - name: online recovery [standby02]
+      command: su - postgres -c 'pcp_recovery_node 0 localhost {{ pcpport }} postgres postgres 2'
+      when: wd_role == 'active'

@@ -1,0 +1,16 @@
+---
+- name: Stop postgres
+  command: pkill postgres
+  ignore_errors: yes
+
+- name: remove pgpool
+  file: path=/usr/local/src/pgpool-II-3.4.0 state=absent
+
+- name: Delete PGDATA, PGARC
+  file: path={{ item }} state=absent
+  with_items:
+    - "{{ pgdata }}"
+    - "{{ pgarc }}"
+
+- name: Delete ALL PostgreSQL
+  yum: name=postgresql* state=absent

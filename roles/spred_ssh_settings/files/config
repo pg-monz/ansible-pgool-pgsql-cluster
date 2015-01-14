@@ -1,0 +1,5 @@
+Host *
+ForwardX11 no
+GSSAPIAuthentication no
+GSSAPIDelegateCredentials no
+StrictHostKeyChecking no

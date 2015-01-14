@@ -1,0 +1,65 @@
+---
+- name: Install pgpool-II 3.4.0
+  shell: >-
+    export PATH={{ pghome }}/bin:$PATH &&
+    export LD_LIBRARY_PATH={{ pghome }}/lib:$LD_LIBRARY_PATH &&
+    cd /usr/local/src/pgpool-II-3.4.0 &&
+    ./configure --with-pgsql={{ pghome }} --with-pgsql-libdir={{ pghome }}/lib &&
+    make &&
+    make install
+  when: "'pgpool' in group_names"
+
+- name: Install pgpool extensions
+  shell: >-
+    export PATH={{ pghome }}/bin:$PATH &&
+    export LD_LIBRARY_PATH={{ pghome }}/lib:$LD_LIBRARY_PATH &&
+    cd /usr/local/src/pgpool-II-3.4.0 &&
+    cd src/sql/pgpool-recovery &&
+    make &&
+    make install &&
+    cd ../pgpool-regclass &&
+    make &&
+    make install
+  when: "'pgsql' in group_names"
+
+- name: setuid flag [/sbin/ifconfig]
+  file: path=/sbin/ifconfig mode=4755 owner=root group=root
+  when: "'pgpool' in group_names"
+
+- name: setuid flag [/sbin/arping]
+  file: path=/sbin/arping mode=4755 owner=root group=root
+  when: "'pgpool' in group_names"
+
+- name: Create pgpool log dirctory
+  file: path={{ pgpool_log_dir }} state=directory recurse=yes mode=755 owner=postgres group=postgres
+
+- name: Create pgpool pid dirctory
+  file: path={{ pgpool_pid_dir }} state=directory recurse=yes mode=755 owner=postgres group=postgres
+  when: "'pgpool' in group_names"
+
+- name: Delete PGDATA before initdb
+  file: path={{ pgdata }} state=absent
+  when: "'pgsql_primary' in group_names"
+
+- name: initdb
+  command: su - postgres -c '{{ pghome }}/bin/initdb --no-locale --encoding=utf8 -D {{ pgdata }}'
+  when: "'pgsql_primary' in group_names"
+
+- name: Start postgres
+  command: su - postgres -c '{{ pghome }}/bin/pg_ctl -D {{ pgdata }} -w start &>/dev/null'
+  when: "'pgsql_primary' in group_names"
+
+- name: Install pgpool extensions
+  shell: >-
+    su - postgres -c "{{ pghome }}/bin/psql -c 'CREATE EXTENSION pgpool_recovery' template1" &&
+    su - postgres -c "{{ pghome }}/bin/psql -c 'CREATE EXTENSION pgpool_recovery' postgres" &&
+    su - postgres -c "{{ pghome }}/bin/psql -c 'CREATE EXTENSION pgpool_regclass' template1" &&
+    su - postgres -c "{{ pghome }}/bin/psql -c 'CREATE EXTENSION pgpool_regclass' postgres"
+  when: "'pgsql_primary' in group_names"
+
+- name: Stop postgres
+  command: su - postgres -c '{{ pghome }}/bin/pg_ctl -D {{ pgdata }} -w stop &>/dev/null'
+  when: "'pgsql_primary' in group_names"
+
+- name: Wate 10 sec
+  pause: seconds=10

@@ -1,0 +1,6 @@
+---
+- name: Copy postgresql.conf
+  template: src=postgresql.conf dest={{ pgdata }} mode=600 owner=postgres group=postgres
+
+- name: Copy pg_hba.conf
+  copy: src=pg_hba.conf dest={{ pgdata }} mode=600 owner=postgres group=postgres

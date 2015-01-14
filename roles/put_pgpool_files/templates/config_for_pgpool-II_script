@@ -1,0 +1,77 @@
+#!/bin/bash
+# This file is used by pgpool-II scripts.
+#
+# Copyright (C) 2014 SRA OSS, Inc. Japan
+#===============================================================================
+#  GLOBAL DECLARATIONS
+#===============================================================================
+PGHOME={{ pghome }}
+PSQL=$PGHOME/bin/psql
+PG_CTL=$PGHOME/bin/pg_ctl
+
+PG_SUPER_USER=postgres
+PGPOOL_LOG_DIR={{ pgpool_log_dir }}
+
+PCP_PORT={{ pcpport }}
+PCP_SUPER_USER=postgres
+PCP_PASSWORD=postgres
+
+# [ node 0 ]
+BACKEND_HOST_ARR[0]={{ pgsql_primary_ip }}
+BACKEND_PORT_ARR[0]={{ pgport }}
+BACKEND_PGDATA_ARR[0]={{ pgdata }}
+BACKEND_ARCHIVE_DIR_ARR[0]={{ pgarc }}
+
+# [ node 1 ]
+BACKEND_HOST_ARR[1]={{ pgsql_standby01_ip }}
+BACKEND_PORT_ARR[1]={{ pgport }}
+BACKEND_PGDATA_ARR[1]={{ pgdata }}
+BACKEND_ARCHIVE_DIR_ARR[1]={{ pgarc }}
+
+# [ node 2 ]
+BACKEND_HOST_ARR[2]={{ pgsql_standby02_ip }}
+BACKEND_PORT_ARR[2]={{ pgport }}
+BACKEND_PGDATA_ARR[2]={{ pgdata }}
+BACKEND_ARCHIVE_DIR_ARR[2]={{ pgarc }}
+
+# used by get_master_node_num()
+NIC={{ nic }}
+
+#===============================================================================
+#  FUNCTION DEFINITIONS
+#===============================================================================
+#---  FUNCTION  ----------------------------------------------------------------
+#          NAME: get_master_node_num
+#   DESCRIPTION: Search the node number of current master backend node.
+#    PARAMETERS: ---
+#       RETURNS: The node number of master backend node.
+#-------------------------------------------------------------------------------
+get_master_node_num()
+{
+	master_node=$(LANG=C /sbin/ifconfig $NIC | awk '/inet[^6]/ {print $2}' |  cut -d : -f 2)
+{% raw %}
+	for i in $(seq 0 $((${#BACKEND_HOST_ARR[@]} - 1))); do
+{% endraw %}
+		if [ "${BACKEND_HOST_ARR[$i]}" == "$master_node" ]; then
+			return $i
+		fi
+	done
+}    # ----------  end of get_master_node_num  ----------
+
+#---  FUNCTION  ----------------------------------------------------------------
+#          NAME: get_dest_node_num
+#   DESCRIPTION: Search the node number of dest backend node from $1.
+#    PARAMETERS: $1: dest node host
+#       RETURNS: The node number of dest backend node.
+#-------------------------------------------------------------------------------
+get_dest_node_num()
+{
+	dest_node=$1
+{% raw %}
+	for i in $(seq 0 $((${#BACKEND_HOST_ARR[@]} - 1))); do
+{% endraw %}
+		if [ "${BACKEND_HOST_ARR[$i]}" == "$dest_node" ]; then
+			return $i
+		fi
+	done
+}    # ----------  end of get_dest_node_num  ----------
