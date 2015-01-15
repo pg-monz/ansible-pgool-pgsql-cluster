@@ -24,7 +24,7 @@ Playbook の設定
 | pgsql_primary_ip          | pgsql01                 | デプロイ時に Primary になる バックエンド IP アドレス or ホスト名 |
 | pgsql_standby01_ip        | pgsql02                 | デプロイ時に standby になる バックエンド IP アドレス or ホスト名 |
 | pgsql_standby02_ip        | pgsql03                 | デプロイ時に standby になる バックエンド IP アドレス or ホスト名 |
-| nic                       | eth1                    | vip で使う デバイス名                                            |
+| nic                       | eth1                    | vip に使うデバイス名                                             |
 
 ### ./hosts
 デプロイ対象となるサーバに対して Ansible が使う接続パラメータです。スペース区切りで以下の通り指定してください。
@@ -65,13 +65,17 @@ SSH 接続時、sudo 実行時にパスワードの入力が必要な場合は�
 
 ```sh
 masano@SRAOSS-CF-SX2:Ansible$ ansible-playbook --ask-pass --ask-sudo-pass -i hosts site.yml
+SSH password: 
+sudo password [defaults to SSH password]: 
+:
+:
 ```
 
 Playbook の実行概要
 -------------------
 本プレイブックで実行される処理内容は、おおまかには以下の通りです。
 
-* site.yml  
+* site.yml
   以下のファイルを呼び出す。
   * ./clean_up.yml
     * Ansible でインストールした pgpool-II、PostgreSQL、ソケットファイル、pid ファイル、データベースクラスタなどを削除します。
