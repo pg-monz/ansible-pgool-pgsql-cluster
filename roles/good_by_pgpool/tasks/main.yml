@@ -14,6 +14,9 @@
 - name: remove pgpool_status file
   file: path=/tmp/pgpool_status state=absent
 
+- name: remove memqcache directory
+  file: path={{ pgpool_memqcache_oiddir }} state=absent
+
 - name: delete vip
   command: ifconfig {{ nic }}:0 down
   ignore_errors: yes

@@ -30,11 +30,15 @@
   file: path=/sbin/arping mode=4755 owner=root group=root
   when: "'pgpool' in group_names"
 
-- name: Create pgpool log dirctory
+- name: Create pgpool log dirctory in all servers
   file: path={{ pgpool_log_dir }} state=directory recurse=yes mode=755 owner=postgres group=postgres
 
 - name: Create pgpool pid dirctory
   file: path={{ pgpool_pid_dir }} state=directory recurse=yes mode=755 owner=postgres group=postgres
+  when: "'pgpool' in group_names"
+
+- name: Create pgpool memqcache oid dirctory
+  file: path={{ pgpool_memqcache_oiddir }} state=directory recurse=yes mode=755 owner=postgres group=postgres
   when: "'pgpool' in group_names"
 
 - name: Delete PGDATA before initdb

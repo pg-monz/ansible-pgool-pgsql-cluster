@@ -36,6 +36,7 @@ pgsql_log_dir: /var/log/pgsql
 # pgpool info.
 pgpool_pid_dir: /var/run/pgpool
 pgpool_log_dir: /var/log/pgpool
+pgpool_memqcache_oiddir: /var/log/pgpool/oiddir
 poolport: 9999
 pcpport: 9898
 vip: 192.168.1.101
